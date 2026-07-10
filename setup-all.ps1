@@ -57,7 +57,7 @@ foreach ($service in $services) {
             Write-Host "• Generate schema..." -ForegroundColor Gray
             npm run db:generate
             Write-Host "• Push schema ke database..." -ForegroundColor Gray
-            npm run db:push
+            npm run db:migrate
             Write-Host "• Seeding data awal..." -ForegroundColor Gray
             npm run db:seed
         }

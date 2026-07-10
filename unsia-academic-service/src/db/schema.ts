@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp, boolean, text, integer, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, boolean, text, integer, decimal, jsonb } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // 1. Students Table
