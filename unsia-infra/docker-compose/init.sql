@@ -1,0 +1,10 @@
+CREATE DATABASE core_db;
+CREATE DATABASE reference_db;
+CREATE DATABASE crm_db;
+CREATE DATABASE pmb_db;
+CREATE DATABASE finance_db;
+CREATE DATABASE academic_db;
+CREATE DATABASE hris_db;
+CREATE DATABASE lms_db;
+CREATE DATABASE assessment_db;
+CREATE DATABASE portal_db;

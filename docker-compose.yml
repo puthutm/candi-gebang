@@ -1,0 +1,354 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # 1. DATABASES
+  # =========================================================================
+  postgres-core:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-core
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: core_db
+    ports:
+      - "5431:5432"
+    volumes:
+      - pgdata-core:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-reference:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-reference
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: reference_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata-reference:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-crm:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-crm
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: crm_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata-crm:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-pmb:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-pmb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: pmb_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata-pmb:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-finance:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-finance
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: finance_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata-finance:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-academic:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-academic
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: academic_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - pgdata-academic:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-hris:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-hris
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: hris_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - pgdata-hris:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-lms:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-lms
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: lms_db
+    ports:
+      - "5438:5432"
+    volumes:
+      - pgdata-lms:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-assessment:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-assessment
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: assessment_db
+    ports:
+      - "5439:5432"
+    volumes:
+      - pgdata-assessment:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-portal:
+    image: postgres:16-alpine
+    container_name: unsia-postgres-portal
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: portal_db
+    ports:
+      - "5440:5432"
+    volumes:
+      - pgdata-portal:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # =========================================================================
+  # 2. CACHE & MESSAGE BROKER
+  # =========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: unsia-redis-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: unsia-rabbitmq-local
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  # =========================================================================
+  # 3. APPLICATIONS
+  # =========================================================================
+  unsia-core-service:
+    build:
+      context: .
+      dockerfile: ./unsia-core-service/Dockerfile
+    container_name: unsia-core-service
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-core:5432/core_db
+      - PORT=3001
+      - JWT_SECRET=supersecretkeyforlocaldevchangeinprod
+      - JWT_EXPIRES_IN=1h
+      - JWT_REFRESH_SECRET=supersecretrefreshkeychangeinprod
+      - JWT_REFRESH_EXPIRES_IN=7d
+    depends_on:
+      - postgres-core
+    restart: unless-stopped
+
+  unsia-reference-service:
+    build:
+      context: .
+      dockerfile: ./unsia-reference-service/Dockerfile
+    container_name: unsia-reference-service
+    ports:
+      - "3002:3002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-reference:5432/reference_db
+      - PORT=3002
+      - CORE_SERVICE_URL=http://unsia-core-service:3001
+    depends_on:
+      - postgres-reference
+    restart: unless-stopped
+
+  unsia-crm-service:
+    build:
+      context: .
+      dockerfile: ./unsia-crm-service/Dockerfile
+    container_name: unsia-crm-service
+    ports:
+      - "3003:3003"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-crm:5432/crm_db
+      - PORT=3003
+      - PMB_SERVICE_URL=http://unsia-pmb-service:3004
+    depends_on:
+      - postgres-crm
+    restart: unless-stopped
+
+  unsia-pmb-service:
+    build:
+      context: .
+      dockerfile: ./unsia-pmb-service/Dockerfile
+    container_name: unsia-pmb-service
+    ports:
+      - "3004:3004"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-pmb:5432/pmb_db
+      - PORT=3004
+      - FINANCE_SERVICE_URL=http://unsia-finance-service:3005
+      - ACADEMIC_SERVICE_URL=http://unsia-academic-service:3006
+    depends_on:
+      - postgres-pmb
+    restart: unless-stopped
+
+  unsia-finance-service:
+    build:
+      context: .
+      dockerfile: ./unsia-finance-service/Dockerfile
+    container_name: unsia-finance-service
+    ports:
+      - "3005:3005"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-finance:5432/finance_db
+      - PORT=3005
+    depends_on:
+      - postgres-finance
+    restart: unless-stopped
+
+  unsia-academic-service:
+    build:
+      context: .
+      dockerfile: ./unsia-academic-service/Dockerfile
+    container_name: unsia-academic-service
+    ports:
+      - "3006:3006"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-academic:5432/academic_db
+      - PORT=3006
+      - FINANCE_SERVICE_URL=http://unsia-finance-service:3005
+      - LMS_SERVICE_URL=http://unsia-lms-service:3008
+    depends_on:
+      - postgres-academic
+    restart: unless-stopped
+
+  unsia-hris-service:
+    build:
+      context: .
+      dockerfile: ./unsia-hris-service/Dockerfile
+    container_name: unsia-hris-service
+    ports:
+      - "3007:3007"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-hris:5432/hris_db
+      - PORT=3007
+    depends_on:
+      - postgres-hris
+    restart: unless-stopped
+
+  unsia-lms-service:
+    build:
+      context: .
+      dockerfile: ./unsia-lms-service/Dockerfile
+    container_name: unsia-lms-service
+    ports:
+      - "3008:3008"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-lms:5432/lms_db
+      - PORT=3008
+    depends_on:
+      - postgres-lms
+    restart: unless-stopped
+
+  unsia-assessment-service:
+    build:
+      context: .
+      dockerfile: ./unsia-assessment-service/Dockerfile
+    container_name: unsia-assessment-service
+    ports:
+      - "3009:3009"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-assessment:5432/assessment_db
+      - PORT=3009
+      - ACADEMIC_SERVICE_URL=http://unsia-academic-service:3006
+    depends_on:
+      - postgres-assessment
+    restart: unless-stopped
+
+  unsia-portal-web:
+    build:
+      context: .
+      dockerfile: ./unsia-portal-web/Dockerfile
+    container_name: unsia-portal-web
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    restart: unless-stopped
+
+  unsia-integration-worker:
+    build:
+      context: .
+      dockerfile: ./unsia-integration-worker/Dockerfile
+    container_name: unsia-integration-worker
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - CORE_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-core:5432/core_db
+      - REFERENCE_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-reference:5432/reference_db
+      - CRM_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-crm:5432/crm_db
+      - PMB_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-pmb:5432/pmb_db
+      - FINANCE_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-finance:5432/finance_db
+      - ACADEMIC_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-academic:5432/academic_db
+      - HRIS_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-hris:5432/hris_db
+      - LMS_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-lms:5432/lms_db
+      - ASSESSMENT_DATABASE_URL=postgresql://postgres:postgrespassword@postgres-assessment:5432/assessment_db
+    depends_on:
+      - rabbitmq
+      - postgres-core
+      - postgres-reference
+      - postgres-crm
+      - postgres-pmb
+      - postgres-finance
+      - postgres-academic
+      - postgres-hris
+      - postgres-lms
+      - postgres-assessment
+    restart: unless-stopped
+
+volumes:
+  pgdata-core:
+  pgdata-reference:
+  pgdata-crm:
+  pgdata-pmb:
+  pgdata-finance:
+  pgdata-academic:
+  pgdata-hris:
+  pgdata-lms:
+  pgdata-assessment:
+  pgdata-portal:
+  redisdata:
+  rabbitmqdata:

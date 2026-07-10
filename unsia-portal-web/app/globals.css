@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.display {
+  font-family: 'Urbanist', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.hero-mesh {
+  background: radial-gradient(at 0% 0%, #0a345c 0%, transparent 55%),
+              radial-gradient(at 100% 0%, #00719f 0%, transparent 55%),
+              radial-gradient(at 60% 100%, #0f487b 0%, transparent 60%), #08294d;
+}
+
+.dot-pattern {
+  background-image: radial-gradient(rgba(255,255,255,0.07) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}

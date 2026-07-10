@@ -1,0 +1,17 @@
+{
+  "name": "@unsia/shared-contracts",
+  "version": "1.0.0",
+  "description": "Shared contracts and schemas for ERP Pendidikan UNSIA",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

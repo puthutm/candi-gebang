@@ -1,0 +1,31 @@
+{
+  "name": "unsia-assessment-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3009",
+    "build": "next build",
+    "start": "next start -p 3009",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@unsia/shared-contracts": "file:../unsia-shared-contracts",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.31.2",
+    "next": "^14.2.4",
+    "pg": "^8.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/pg": "^8.11.6",
+    "@types/react": "^18.3.3",
+    "drizzle-kit": "^0.22.7",
+    "tsx": "^4.15.7",
+    "typescript": "^5.4.5"
+  }
+}

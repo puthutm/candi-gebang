@@ -1,0 +1,25 @@
+export const RoleCodes = {
+  SUPER_ADMIN: 'super_admin',
+  ADMIN_BPPTI: 'admin_bppti',
+  TECHNICAL_ADMIN: 'technical_admin',
+  AUDITOR: 'auditor',
+  ADMIN_REFERENSI: 'admin_referensi',
+  ADMIN_CRM: 'admin_crm',
+  AGEN_MITRA: 'agen_mitra',
+  PENDAFTAR: 'pendaftar',
+  ADMIN_PMB: 'admin_pmb',
+  ADMIN_FINANCE: 'admin_finance',
+  ADMIN_AKADEMIK_BIRO: 'admin_akademik_biro',
+  KAPRODI: 'kaprodi',
+  ADMIN_AKADEMIK_PRODI: 'admin_akademik_prodi',
+  DOSEN: 'dosen',
+  DOSEN_PA: 'dosen_pa',
+  MAHASISWA: 'mahasiswa',
+  ADMIN_SDM: 'admin_sdm',
+  ADMIN_LMS: 'admin_lms',
+  ADMIN_ASSESSMENT: 'admin_assessment',
+  PIMPINAN: 'pimpinan',
+  SERVICE_ACCOUNT: 'service_account',
+} as const;
+
+export type RoleCode = typeof RoleCodes[keyof typeof RoleCodes];
