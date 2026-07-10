@@ -78,13 +78,15 @@ export async function POST(req: NextRequest) {
       return createErrorResponse('NOT_FOUND', 'User not found', [], 404, correlationId);
     }
 
+    const person = user.person as any;
+
     // 3. Issue new access token
     const tokenPayload = {
       userId: user.id,
       username: user.username,
       email: user.email,
       personId: user.personId,
-      fullName: `${user.person.firstName} ${user.person.lastName}`,
+      fullName: `${person.firstName} ${person.lastName}`,
       role: selectedRole.roleCode,
       scopeType: selectedRole.scopeType,
       scopeValue: selectedRole.scopeValue,

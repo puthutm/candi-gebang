@@ -40,6 +40,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const person = user.person as any;
+
     // 2. Fetch password record
     const pwdRecord = await db.query.passwords.findFirst({
       where: eq(passwords.userId, user.id),
@@ -99,7 +101,7 @@ export async function POST(req: NextRequest) {
       username: user.username,
       email: user.email,
       personId: user.personId,
-      fullName: `${user.person.firstName} ${user.person.lastName}`,
+      fullName: `${person.firstName} ${person.lastName}`,
       role: defaultRole.roleCode,
       scopeType: defaultRole.scopeType,
       scopeValue: defaultRole.scopeValue,
@@ -137,7 +139,7 @@ export async function POST(req: NextRequest) {
           id: user.id,
           username: user.username,
           email: user.email,
-          fullName: `${user.person.firstName} ${user.person.lastName}`,
+          fullName: `${person.firstName} ${person.lastName}`,
         },
         activeRole: defaultRole.roleCode,
         activeScope: {

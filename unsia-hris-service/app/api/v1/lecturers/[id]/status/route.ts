@@ -20,12 +20,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return createErrorResponse('NOT_FOUND', 'Lecturer not found', [], 404, correlationId);
     }
 
+    const employee = record.employee as any;
+
     return createSuccessResponse(
       {
         lecturerId: record.id,
         nidn: record.nidn,
-        status: record.employee.status,
-        isEligible: record.employee.status === 'ACTIVE',
+        status: employee.status,
+        isEligible: employee.status === 'ACTIVE',
       },
       'Lecturer status retrieved successfully',
       200,

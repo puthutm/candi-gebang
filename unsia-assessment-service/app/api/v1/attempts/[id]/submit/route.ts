@@ -99,7 +99,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     let academicGradeSync = false;
     let academicNotes = '';
 
-    if (attempt.session.contextOwner === 'LMS') {
+    const session = attempt.session as any;
+    if (session && session.contextOwner === 'LMS') {
       try {
         const academicServiceUrl = process.env.ACADEMIC_SERVICE_URL || 'http://localhost:3006';
         const gradeRes = await fetch(`${academicServiceUrl}/api/v1/grades/input`, {
@@ -110,7 +111,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           },
           body: JSON.stringify({
             studentId: attempt.participantRefId,
-            classOfferingId: attempt.session.contextRefId,
+            classOfferingId: session.contextRefId,
             score: finalScore,
             attemptId,
           }),

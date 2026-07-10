@@ -65,6 +65,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const person = user.person as any;
+
     // 3. Fetch all assigned roles
     const assignedRoles = await db
       .select({
@@ -83,7 +85,7 @@ export async function GET(req: NextRequest) {
           id: user.id,
           username: user.username,
           email: user.email,
-          fullName: `${user.person.firstName} ${user.person.lastName}`,
+          fullName: `${person.firstName} ${person.lastName}`,
           person: user.person,
         },
         activeRole: activeSession.activeRole,

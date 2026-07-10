@@ -66,6 +66,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const person = user.person as any;
+
     // 4. Get active role
     const assignedRoles = await db
       .select({
@@ -96,7 +98,7 @@ export async function POST(req: NextRequest) {
       username: user.username,
       email: user.email,
       personId: user.personId,
-      fullName: `${user.person.firstName} ${user.person.lastName}`,
+      fullName: `${person.firstName} ${person.lastName}`,
       role: defaultRole.roleCode,
       scopeType: defaultRole.scopeType,
       scopeValue: defaultRole.scopeValue,
