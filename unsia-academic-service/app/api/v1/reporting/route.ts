@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     for (const t of transcripts) {
       const student = studentList.find((s: any) => s.id === t.studentId);
       if (student) {
-        const prog = student.studyProgramId || 'General';
+        const prog = student.studyProgramRefId || 'General';
         if (!studyProgramAverages[prog]) {
           studyProgramAverages[prog] = { sum: 0, count: 0 };
         }
