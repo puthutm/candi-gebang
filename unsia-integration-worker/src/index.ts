@@ -107,7 +107,7 @@ async function start() {
   await mqChannel.assertQueue(consumerQueue, { durable: true });
   await mqChannel.bindQueue(consumerQueue, EXCHANGE_NAME, '#'); // Bind to all events
 
-  mqChannel.consume(consumerQueue, async (msg) => {
+  mqChannel.consume(consumerQueue, async (msg: any) => {
     if (!msg) return;
 
     try {
