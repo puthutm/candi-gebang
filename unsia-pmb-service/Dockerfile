@@ -1,18 +1,26 @@
-# Build command (run from workspace root):
-# docker build -t unsia-pmb-service -f unsia-pmb-service/Dockerfile .
-
+# Build stage
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Build shared contracts
 COPY unsia-shared-contracts /app/unsia-shared-contracts
 RUN cd /app/unsia-shared-contracts && npm install && npm run build
-COPY unsia-pmb-service /app/unsia-pmb-service
-RUN cd /app/unsia-pmb-service && npm install && npm run build
 
-FROM node:20-alpine
+# Build next app
+COPY unsia-pmb-service /app/service
+WORKDIR /app/service
+RUN npm install && npm run build
+
+# Runner stage (highly optimized size)
+FROM node:20-alpine AS runner
 WORKDIR /app
-COPY --from=builder /app/unsia-shared-contracts /app/unsia-shared-contracts
-COPY --from=builder /app/unsia-pmb-service /app/unsia-pmb-service
-WORKDIR /app/unsia-pmb-service
 ENV NODE_ENV production
+ENV PORT 3004
+ENV HOSTNAME "0.0.0.0"
+
+# Copy minimal standalone files for Next.js
+COPY --from=builder /app/service/.next/standalone ./
+COPY --from=builder /app/service/.next/static /app/.next/static
+
 EXPOSE 3004
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]
