@@ -28,8 +28,8 @@ export default function LoginPage() {
     setSuccess(null);
 
     try {
-      // Simulate API call to unsia-core-service
-      const response = await fetch('http://localhost:3001/api/v1/auth/login', {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const response = await fetch(`http://${hostname}:3001/api/v1/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
