@@ -25,8 +25,8 @@ async function start() {
   console.log('--- Starting UNSIA Integration Worker Daemon ---');
 
   // 1. Establish RabbitMQ connection
-  let mqConn: amqp.Connection;
-  let mqChannel: amqp.Channel;
+  let mqConn: any;
+  let mqChannel: any;
   try {
     mqConn = await amqp.connect(RABBITMQ_URL);
     mqChannel = await mqConn.createChannel();
