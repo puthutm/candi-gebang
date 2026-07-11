@@ -9,28 +9,28 @@ RUN cd /app/unsia-shared-contracts && npm install && npm run build
 # Build next app
 COPY unsia-pmb-service /app/service
 WORKDIR /app/service
-RUN npm install && npm run db:generate && npx tsc src/db/seed.ts --outDir ./dist-seed --module commonjs --target es2022 --allowSyntheticDefaultImports true --skipLibCheck true && npm run build && npm prune --production
+RUN npm install && npm run db:generate && npm run build
 
-# Runner stage (highly optimized size)
+# Runner stage
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
 ENV PORT 3004
 ENV HOSTNAME "0.0.0.0"
 
-# Copy minimal standalone files for Next.js
+# Copy standalone Next.js output
 COPY --from=builder /app/service/.next/standalone ./
 COPY --from=builder /app/service/.next/static /app/.next/static
 
-# Copy production node_modules to guarantee all dependencies are present
+# Copy full node_modules (includes tsx, drizzle-orm, pg, etc.)
 COPY --from=builder /app/service/node_modules ./node_modules
 
 # Copy migrations and migration script
 COPY --from=builder /app/service/drizzle /app/drizzle
 COPY --from=builder /app/service/migrate.js /app/migrate.js
 
-# Copy compiled seed script
-COPY --from=builder /app/service/dist-seed /app/dist-seed
+# Copy seed TypeScript source (tsx will run it directly)
+COPY --from=builder /app/service/src/db /app/src/db
 
 EXPOSE 3004
-CMD ["sh", "-c", "node migrate.js && node dist-seed/src/db/seed.js && node server.js"]
+CMD ["sh", "-c", "node migrate.js && npx tsx src/db/seed.ts && node server.js"]
