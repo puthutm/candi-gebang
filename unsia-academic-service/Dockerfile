@@ -9,7 +9,7 @@ RUN cd /app/unsia-shared-contracts && npm install && npm run build
 # Build next app
 COPY unsia-academic-service /app/service
 WORKDIR /app/service
-RUN npm install && npm run build
+RUN npm install && npm run db:generate && npx tsc src/db/seed.ts --outDir ./dist-seed --module commonjs --target es2022 --allowSyntheticDefaultImports true --skipLibCheck true && npm run build
 
 # Runner stage (highly optimized size)
 FROM node:20-alpine AS runner
@@ -22,5 +22,12 @@ ENV HOSTNAME "0.0.0.0"
 COPY --from=builder /app/service/.next/standalone ./
 COPY --from=builder /app/service/.next/static /app/.next/static
 
+# Copy migrations and migration script
+COPY --from=builder /app/service/drizzle /app/drizzle
+COPY --from=builder /app/service/migrate.js /app/migrate.js
+
+# Copy compiled seed script
+COPY --from=builder /app/service/dist-seed /app/dist-seed
+
 EXPOSE 3006
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node migrate.js && node dist-seed/src/db/seed.js && node server.js"]
