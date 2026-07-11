@@ -1,6 +1,7 @@
 import { db } from './client.js';
 import { roles, permissions, rolePermissions, userAccounts, passwords, persons, userRoles, applications } from './schema.js';
 import bcrypt from 'bcrypt';
+import { eq, and } from 'drizzle-orm';
 
 async function main() {
   try {
@@ -155,23 +156,47 @@ async function main() {
       })
       .returning();
 
-    const hashedPassword = await bcrypt.hash('Admin123!', 10);
-    await db
-      .insert(passwords)
-      .values({
-        userId: userRecord.id,
-        passwordHash: hashedPassword,
-      });
+    console.log('Checking for existing password record...');
+    const existingPassword = await db
+      .select()
+      .from(passwords)
+      .where(eq(passwords.userId, userRecord.id))
+      .limit(1);
 
-    console.log('Assigning super_admin role to user admin...');
-    await db
-      .insert(userRoles)
-      .values({
-        userId: userRecord.id,
-        roleId: superAdminRoleId,
-        scopeType: 'global',
-        scopeValue: 'all',
-      });
+    if (existingPassword.length === 0) {
+      console.log('Seeding super admin password...');
+      const hashedPassword = await bcrypt.hash('Admin123!', 10);
+      await db
+        .insert(passwords)
+        .values({
+          userId: userRecord.id,
+          passwordHash: hashedPassword,
+        });
+    }
+
+    console.log('Checking for existing super admin user role...');
+    const existingUserRole = await db
+      .select()
+      .from(userRoles)
+      .where(
+        and(
+          eq(userRoles.userId, userRecord.id),
+          eq(userRoles.roleId, superAdminRoleId)
+        )
+      )
+      .limit(1);
+
+    if (existingUserRole.length === 0) {
+      console.log('Assigning super_admin role to user admin...');
+      await db
+        .insert(userRoles)
+        .values({
+          userId: userRecord.id,
+          roleId: superAdminRoleId,
+          scopeType: 'global',
+          scopeValue: 'all',
+        });
+    }
 
     console.log('--- Seed Core DB Completed Successfully! ---');
   } catch (error) {
