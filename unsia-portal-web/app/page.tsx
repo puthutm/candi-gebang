@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 function generateUUID() {
   if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
@@ -14,6 +15,7 @@ function generateUUID() {
 }
 
 export default function LoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,8 +46,18 @@ export default function LoginPage() {
         throw new Error(result.message || 'Login gagal. Periksa kembali username dan password Anda.');
       }
 
+      // Store auth session info
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.user));
+      }
+
       setSuccess(`Selamat datang kembali, ${result.data.user.fullName}!`);
-      // In real scenario, store token and redirect to dashboard based on role
+      
+      // Short delay to let the user see the success message
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
     } catch (err: any) {
       setError(err.message || 'Koneksi gagal ke Core Auth Service. Pastikan service berjalan.');
     } finally {
