@@ -9,7 +9,7 @@ RUN cd /app/unsia-shared-contracts && npm install && npm run build
 # Build next app
 COPY unsia-crm-service /app/service
 WORKDIR /app/service
-RUN npm install && npm run db:generate && npx tsc src/db/seed.ts --outDir ./dist-seed --module commonjs --target es2022 --allowSyntheticDefaultImports true --skipLibCheck true && npm run build
+RUN npm install && npm run db:generate && npx tsc src/db/seed.ts --outDir ./dist-seed --module commonjs --target es2022 --allowSyntheticDefaultImports true --skipLibCheck true && npm run build && npm prune --production
 
 # Runner stage (highly optimized size)
 FROM node:20-alpine AS runner
@@ -21,6 +21,9 @@ ENV HOSTNAME "0.0.0.0"
 # Copy minimal standalone files for Next.js
 COPY --from=builder /app/service/.next/standalone ./
 COPY --from=builder /app/service/.next/static /app/.next/static
+
+# Copy production node_modules to guarantee all dependencies are present
+COPY --from=builder /app/service/node_modules ./node_modules
 
 # Copy migrations and migration script
 COPY --from=builder /app/service/drizzle /app/drizzle
